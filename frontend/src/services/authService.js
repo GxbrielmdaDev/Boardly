@@ -1,0 +1,9 @@
+import api from './api';
+
+export const login = (email, password) =>
+  api.post('/api/auth/login', { email, password }).then((r) => r.data);
+
+export const register = (username, email, password) =>
+  api.post('/api/auth/register', { username, email, password }).then((r) => r.data);
+
+export const getMe = () => api.get('/api/auth/me').then((r) => r.data);

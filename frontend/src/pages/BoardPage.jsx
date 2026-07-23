@@ -19,7 +19,7 @@ export default function BoardPage() {
   useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentBoard, lists, loading, loadBoard, createList, createCard, moveCard } = useBoardStore();
+  const { currentBoard, lists, boardLabels, loading, loadBoard, createList, createCard, moveCard } = useBoardStore();
   const [listTitle, setListTitle] = useState('');
   const [activeCard, setActiveCard] = useState(null);
   const [modalCardId, setModalCardId] = useState(null);
@@ -149,6 +149,7 @@ export default function BoardPage() {
         <CardModal
           cardId={modalCardId}
           onClose={() => setModalCardId(null)}
+          boardLabels={boardLabels}
         />
       )}
     </div>

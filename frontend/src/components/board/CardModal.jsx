@@ -1,24 +1,44 @@
 import { useEffect, useState } from 'react';
 import useBoardStore from '../../store/boardStore';
 import * as commentService from '../../services/commentService';
+import * as labelService from '../../services/labelService';
 
-export default function CardModal({ cardId, onClose }) {
-  const { lists, updateCard, deleteCard } = useBoardStore();
+const LABEL_COLORS = [
+  { name: 'Vermelho', value: '#ef4444' },
+  { name: 'Laranja', value: '#f97316' },
+  { name: 'Amarelo', value: '#eab308' },
+  { name: 'Verde', value: '#22c55e' },
+  { name: 'Azul', value: '#3b82f6' },
+  { name: 'Roxo', value: '#a855f7' },
+  { name: 'Rosa', value: '#ec4899' },
+  { name: 'Cinza', value: '#6b7280' },
+];
+
+export default function CardModal({ cardId, onClose, boardLabels }) {
+  const { lists, currentBoard, updateCard, deleteCard, loadLabels } = useBoardStore();
   const allCards = lists.flatMap((l) => l.cards);
   const card = allCards.find((c) => c.id === cardId);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [label, setLabel] = useState('');
+  const [selectedLabelIds, setSelectedLabelIds] = useState([]);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [showDelete, setShowDelete] = useState(false);
+  const [showLabelPicker, setShowLabelPicker] = useState(false);
+
+  const [newLabelName, setNewLabelName] = useState('');
+  const [newLabelColor, setNewLabelColor] = useState('#3b82f6');
+  const [editingLabelId, setEditingLabelId] = useState(null);
+  const [editLabelName, setEditLabelName] = useState('');
+
+  const boardId = currentBoard?.id;
 
   useEffect(() => {
     if (card) {
       setTitle(card.title);
       setDescription(card.description || '');
-      setLabel(card.label || '');
+      setSelectedLabelIds(card.labels?.map((l) => l.id) || []);
       loadComments();
     }
   }, [card]);
@@ -28,12 +48,39 @@ export default function CardModal({ cardId, onClose }) {
       const data = await commentService.getComments(cardId);
       setComments(data);
     } catch {
-      // ignore
     }
   };
 
+  const toggleLabel = (labelId) => {
+    setSelectedLabelIds((prev) =>
+      prev.includes(labelId) ? prev.filter((id) => id !== labelId) : [...prev, labelId]
+    );
+  };
+
+  const handleCreateLabel = async (e) => {
+    e.preventDefault();
+    if (!newLabelName.trim() || !boardId) return;
+    await labelService.createLabel(boardId, { name: newLabelName.trim(), color: newLabelColor });
+    setNewLabelName('');
+    setNewLabelColor('#3b82f6');
+    await loadLabels(boardId);
+  };
+
+  const handleUpdateLabel = async (labelId) => {
+    if (!editLabelName.trim()) return;
+    await labelService.updateLabel(labelId, { name: editLabelName.trim() });
+    setEditingLabelId(null);
+    if (boardId) await loadLabels(boardId);
+  };
+
+  const handleDeleteLabel = async (labelId) => {
+    await labelService.deleteLabel(labelId);
+    setSelectedLabelIds((prev) => prev.filter((id) => id !== labelId));
+    if (boardId) await loadLabels(boardId);
+  };
+
   const handleSave = async () => {
-    await updateCard(cardId, { title, description: description || null, label: label || null });
+    await updateCard(cardId, { title, description: description || null, label_ids: selectedLabelIds });
     onClose();
   };
 
@@ -69,14 +116,111 @@ export default function CardModal({ cardId, onClose }) {
         </div>
 
         <div className="mb-4">
-          <label className="text-xs text-slate-400 uppercase mb-1 block">Etiqueta</label>
-          <input
-            type="text"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="ex: Bug, Funcionalidade"
-            className="w-full p-2 rounded bg-slate-700 text-white text-sm border border-slate-600 focus:border-blue-500 outline-none"
-          />
+          <label className="text-xs text-slate-400 uppercase mb-1 block">Etiquetas</label>
+
+          <div className="flex flex-wrap gap-1 mb-2">
+            {boardLabels
+              .filter((l) => selectedLabelIds.includes(l.id))
+              .map((label) => (
+                <span
+                  key={label.id}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium cursor-pointer"
+                  style={{ backgroundColor: label.color + '30', color: label.color, border: `1px solid ${label.color}60` }}
+                  onClick={() => toggleLabel(label.id)}
+                >
+                  {label.name}
+                  <span className="text-xs opacity-70">✕</span>
+                </span>
+              ))}
+          </div>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowLabelPicker(!showLabelPicker)}
+              className="px-3 py-1.5 rounded bg-slate-700 text-slate-300 text-sm border border-slate-600 hover:border-blue-500 transition"
+            >
+              {boardLabels.length === 0 ? 'Nenhuma etiqueta disponível' : '+ Adicionar etiqueta'}
+            </button>
+
+            {showLabelPicker && (
+              <div className="absolute top-full left-0 mt-1 bg-slate-700 rounded border border-slate-600 p-2 shadow-xl z-10 min-w-[240px] max-h-72 overflow-y-auto">
+                {boardLabels.map((label) => {
+                  const isSelected = selectedLabelIds.includes(label.id);
+                  if (editingLabelId === label.id) {
+                    return (
+                      <div key={label.id} className="flex items-center gap-1 p-1">
+                        <input
+                          type="text"
+                          value={editLabelName}
+                          onChange={(e) => setEditLabelName(e.target.value)}
+                          className="flex-1 p-1 rounded bg-slate-600 text-white text-xs border border-blue-500 outline-none"
+                          autoFocus
+                          onKeyDown={(e) => e.key === 'Enter' && handleUpdateLabel(label.id)}
+                        />
+                        <button onClick={() => handleUpdateLabel(label.id)} className="text-green-400 hover:text-green-300 text-xs">ok</button>
+                        <button onClick={() => setEditingLabelId(null)} className="text-slate-400 hover:text-white text-xs">✕</button>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div
+                      key={label.id}
+                      className="flex items-center gap-2 p-1.5 rounded group hover:bg-slate-600/50 cursor-pointer"
+                      onClick={() => toggleLabel(label.id)}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded border-2 shrink-0 ${isSelected ? 'border-white' : 'border-transparent'}`}
+                        style={{ backgroundColor: label.color }}
+                      />
+                      <span className="text-white text-sm flex-1">{label.name}</span>
+                      {isSelected && <span className="text-blue-400 text-xs">✓</span>}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditingLabelId(label.id); setEditLabelName(label.name); }}
+                        className="text-slate-500 hover:text-blue-400 text-xs opacity-0 group-hover:opacity-100 transition"
+                      >
+                        editar
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteLabel(label.id); }}
+                        className="text-slate-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition"
+                      >
+                        excluir
+                      </button>
+                    </div>
+                  );
+                })}
+
+                <div className="border-t border-slate-600 mt-2 pt-2">
+                  <form onSubmit={handleCreateLabel} className="flex gap-1 mb-1">
+                    <input
+                      type="text"
+                      value={newLabelName}
+                      onChange={(e) => setNewLabelName(e.target.value)}
+                      placeholder="Nova etiqueta..."
+                      className="flex-1 p-1 rounded bg-slate-600 text-white text-xs border border-slate-500 focus:border-blue-500 outline-none"
+                    />
+                    <button
+                      type="submit"
+                      className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition"
+                    >
+                      +Add
+                    </button>
+                  </form>
+                  <div className="flex gap-1 flex-wrap">
+                    {LABEL_COLORS.map((c) => (
+                      <button
+                        key={c.value}
+                        type="button"
+                        onClick={() => setNewLabelColor(c.value)}
+                        className={`w-4 h-4 rounded-full border ${newLabelColor === c.value ? 'border-white scale-110' : 'border-transparent'}`}
+                        style={{ backgroundColor: c.value }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mb-4">

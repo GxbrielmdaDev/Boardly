@@ -1,13 +1,15 @@
 from datetime import datetime
 from pydantic import BaseModel
 
+from app.schemas.label import LabelResponse
+
 
 class CardCreate(BaseModel):
     title: str
     description: str | None = None
     assignee_id: int | None = None
     due_date: datetime | None = None
-    label: str | None = None
+    label_ids: list[int] = []
 
 
 class CardUpdate(BaseModel):
@@ -15,7 +17,7 @@ class CardUpdate(BaseModel):
     description: str | None = None
     assignee_id: int | None = None
     due_date: datetime | None = None
-    label: str | None = None
+    label_ids: list[int] | None = None
 
 
 class CardMove(BaseModel):
@@ -31,7 +33,7 @@ class CardResponse(BaseModel):
     list_id: int
     assignee_id: int | None = None
     due_date: datetime | None = None
-    label: str | None = None
+    labels: list[LabelResponse] = []
     created_at: datetime
     updated_at: datetime
 

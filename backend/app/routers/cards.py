@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.card import Card
+from app.models.label import Label
 from app.schemas.card import CardCreate, CardUpdate, CardMove, CardResponse
 from app.auth.jwt import get_default_user
 
@@ -15,7 +17,9 @@ async def list_cards(
     list_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Card).where(Card.list_id == list_id).order_by(Card.position))
+    result = await db.execute(
+        select(Card).options(selectinload(Card.labels)).where(Card.list_id == list_id).order_by(Card.position)
+    )
     return [CardResponse.model_validate(c) for c in result.scalars().all()]
 
 
@@ -35,11 +39,19 @@ async def create_card(
         list_id=list_id,
         assignee_id=data.assignee_id,
         due_date=data.due_date,
-        label=data.label,
     )
+
+    if data.label_ids:
+        result = await db.execute(select(Label).where(Label.id.in_(data.label_ids)))
+        labels = result.scalars().all()
+        card.labels = labels
+
     db.add(card)
     await db.commit()
-    await db.refresh(card)
+    result = await db.execute(
+        select(Card).options(selectinload(Card.labels)).where(Card.id == card.id)
+    )
+    card = result.scalar_one()
     return CardResponse.model_validate(card)
 
 
@@ -48,7 +60,7 @@ async def get_card(
     card_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Card).where(Card.id == card_id))
+    result = await db.execute(select(Card).options(selectinload(Card.labels)).where(Card.id == card_id))
     card = result.scalar_one_or_none()
     if not card:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card not found")
@@ -61,7 +73,7 @@ async def update_card(
     data: CardUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Card).where(Card.id == card_id))
+    result = await db.execute(select(Card).options(selectinload(Card.labels)).where(Card.id == card_id))
     card = result.scalar_one_or_none()
     if not card:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card not found")
@@ -74,11 +86,15 @@ async def update_card(
         card.assignee_id = data.assignee_id
     if data.due_date is not None:
         card.due_date = data.due_date
-    if data.label is not None:
-        card.label = data.label
+    if data.label_ids is not None:
+        result = await db.execute(select(Label).where(Label.id.in_(data.label_ids)))
+        card.labels = result.scalars().all()
 
     await db.commit()
-    await db.refresh(card)
+    result = await db.execute(
+        select(Card).options(selectinload(Card.labels)).where(Card.id == card_id)
+    )
+    card = result.scalar_one()
     return CardResponse.model_validate(card)
 
 
@@ -87,7 +103,7 @@ async def delete_card(
     card_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Card).where(Card.id == card_id))
+    result = await db.execute(select(Card).options(selectinload(Card.labels)).where(Card.id == card_id))
     card = result.scalar_one_or_none()
     if not card:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card not found")
@@ -102,7 +118,7 @@ async def move_card(
     data: CardMove,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Card).where(Card.id == card_id))
+    result = await db.execute(select(Card).options(selectinload(Card.labels)).where(Card.id == card_id))
     card = result.scalar_one_or_none()
     if not card:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card not found")
@@ -110,5 +126,8 @@ async def move_card(
     card.list_id = data.list_id
     card.position = data.position
     await db.commit()
-    await db.refresh(card)
+    result = await db.execute(
+        select(Card).options(selectinload(Card.labels)).where(Card.id == card_id)
+    )
+    card = result.scalar_one()
     return CardResponse.model_validate(card)

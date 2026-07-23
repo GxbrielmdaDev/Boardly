@@ -27,10 +27,18 @@ export default function CardItem({ card, onClick }) {
       className="bg-slate-700 rounded-lg p-3 cursor-grab active:cursor-grabbing hover:bg-slate-650 transition border border-slate-600/30"
     >
       <p className="text-white text-sm">{card.title}</p>
-      {card.label && (
-        <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-500/20 text-blue-300">
-          {card.label}
-        </span>
+      {card.labels && card.labels.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-1">
+          {card.labels.map((label) => (
+            <span
+              key={label.id}
+              className="inline-block px-2 py-0.5 rounded text-xs font-medium"
+              style={{ backgroundColor: label.color + '30', color: label.color, border: `1px solid ${label.color}60` }}
+            >
+              {label.name}
+            </span>
+          ))}
+        </div>
       )}
       {card.due_date && (
         <p className="text-slate-400 text-xs mt-1">

@@ -19,6 +19,7 @@ class Board(Base):
     owner = relationship("User", back_populates="boards")
     lists = relationship("List", back_populates="board", cascade="all, delete-orphan", order_by="List.position")
     members = relationship("BoardMember", back_populates="board", cascade="all, delete-orphan")
+    labels = relationship("Label", back_populates="board", cascade="all, delete-orphan")
 
 
 class BoardMember(Base):

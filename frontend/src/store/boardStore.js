@@ -2,11 +2,13 @@ import { create } from 'zustand';
 import * as boardService from '../services/boardService';
 import * as listService from '../services/listService';
 import * as cardService from '../services/cardService';
+import * as labelService from '../services/labelService';
 
 const useBoardStore = create((set, get) => ({
   boards: [],
   currentBoard: null,
   lists: [],
+  boardLabels: [],
   loading: false,
 
   loadBoards: async () => {
@@ -16,9 +18,10 @@ const useBoardStore = create((set, get) => ({
 
   loadBoard: async (boardId) => {
     set({ loading: true });
-    const [board, lists] = await Promise.all([
+    const [board, lists, boardLabels] = await Promise.all([
       boardService.getBoard(boardId),
       listService.getLists(boardId),
+      labelService.getLabels(boardId),
     ]);
     const listsWithCards = await Promise.all(
       lists.map(async (list) => {
@@ -26,7 +29,7 @@ const useBoardStore = create((set, get) => ({
         return { ...list, cards };
       })
     );
-    set({ currentBoard: board, lists: listsWithCards, loading: false });
+    set({ currentBoard: board, lists: listsWithCards, boardLabels, loading: false });
   },
 
   createBoard: async (data) => {
@@ -101,6 +104,32 @@ const useBoardStore = create((set, get) => ({
         cards: l.cards.filter((c) => c.id !== id),
       })),
     }));
+  },
+
+  loadLabels: async (boardId) => {
+    const boardLabels = await labelService.getLabels(boardId);
+    set({ boardLabels });
+  },
+
+  createLabel: async (boardId, data) => {
+    await labelService.createLabel(boardId, data);
+    await get().loadLabels(boardId);
+  },
+
+  updateLabel: async (labelId, data) => {
+    await labelService.updateLabel(labelId, data);
+    const { currentBoard } = get();
+    if (currentBoard) {
+      await get().loadLabels(currentBoard.id);
+    }
+  },
+
+  deleteLabel: async (labelId) => {
+    await labelService.deleteLabel(labelId);
+    const { currentBoard } = get();
+    if (currentBoard) {
+      await get().loadLabels(currentBoard.id);
+    }
   },
 }));
 

@@ -1,8 +1,9 @@
 from datetime import datetime
 from sqlalchemy import String, Integer, DateTime, Text, ForeignKey, Boolean, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 
 from app.database import Base
+from app.models.label import card_labels
 
 
 class Card(Base):
@@ -15,7 +16,6 @@ class Card(Base):
     list_id: Mapped[int] = mapped_column(Integer, ForeignKey("lists.id"))
     assignee_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
     due_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    label: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -23,3 +23,4 @@ class Card(Base):
     assignee = relationship("User")
     comments = relationship("Comment", back_populates="card", cascade="all, delete-orphan")
     activities = relationship("Activity", back_populates="card", cascade="all, delete-orphan")
+    labels = relationship("Label", secondary=card_labels, back_populates="cards", lazy="selectin")

@@ -8,6 +8,7 @@ from app.routers.boards import router as boards_router
 from app.routers.lists import router as lists_router
 from app.routers.cards import router as cards_router
 from app.routers.comments import router as comments_router
+from app.routers.labels import router as labels_router
 
 
 @asynccontextmanager
@@ -31,3 +32,4 @@ app.include_router(boards_router)
 app.include_router(lists_router)
 app.include_router(cards_router)
 app.include_router(comments_router)
+app.include_router(labels_router)

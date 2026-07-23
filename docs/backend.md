@@ -26,6 +26,7 @@ backend/
 │   │   ├── board.py         # Modelos Board + BoardMember
 │   │   ├── list.py          # Modelo List
 │   │   ├── card.py          # Modelo Card
+│   │   ├── label.py         # Modelo Label + tabela associativa card_labels
 │   │   └── comment.py       # Modelos Comment + Activity
 │   ├── schemas/
 │   │   ├── __init__.py      # Re-exporta todos os schemas
@@ -33,6 +34,7 @@ backend/
 │   │   ├── board.py         # BoardCreate, BoardUpdate, BoardResponse, BoardMember*
 │   │   ├── list.py          # ListCreate, ListUpdate, ListResponse
 │   │   ├── card.py          # CardCreate, CardUpdate, CardMove, CardResponse
+│   │   ├── label.py         # LabelCreate, LabelUpdate, LabelResponse
 │   │   └── comment.py       # CommentCreate, CommentResponse
 │   ├── routers/
 │   │   ├── __init__.py
@@ -40,6 +42,7 @@ backend/
 │   │   ├── boards.py        # /api/boards/*
 │   │   ├── lists.py         # /api/*/lists, /api/lists/*
 │   │   ├── cards.py         # /api/*/cards, /api/cards/*
+│   │   ├── labels.py        # /api/boards/*/labels, /api/labels/*
 │   │   └── comments.py      # /api/*/comments, /api/comments/*
 │   └── auth/
 │       ├── __init__.py
@@ -57,8 +60,10 @@ User ──┬── Board (dono)
        └── Activity ─── Card
 
 Board ──┬── List ──── Card ──┬── Comment
-        │                    └── Activity
-        └── BoardMember ──── User
+        │                    ├── Activity
+        │                    └── Label ◄──► card_labels
+        ├── BoardMember ──── User
+        └── Label ◄──► card_labels ──── Card
 ```
 
 ### User
@@ -100,18 +105,31 @@ Board ──┬── List ──── Card ──┬── Comment
 | created_at| DateTime| automático            |
 
 ### Card
-| Campo       | Tipo      | Observações           |
-|-------------|-----------|-----------------------|
-| id          | Integer   | PK                    |
-| title       | String    |                       |
-| description | Text?     | anulável              |
-| position    | Float     | para ordenação        |
-| list_id     | Integer   | FK → lists.id         |
-| assignee_id | Integer?  | FK → users.id         |
-| due_date    | DateTime? | anulável              |
-| label       | String?   | anulável              |
-| created_at  | DateTime  | automático            |
-| updated_at  | DateTime  | automático ao atualizar |
+| Campo       | Tipo      | Observações                    |
+|-------------|-----------|--------------------------------|
+| id          | Integer   | PK                             |
+| title       | String    |                                |
+| description | Text?     | anulável                       |
+| position    | Float     | para ordenação                 |
+| list_id     | Integer   | FK → lists.id                  |
+| assignee_id | Integer?  | FK → users.id                  |
+| due_date    | DateTime? | anulável                       |
+| labels      | rel. N:N  | via card_labels → labels.id    |
+| created_at  | DateTime  | automático                     |
+| updated_at  | DateTime  | automático ao atualizar        |
+
+### Label
+| Campo     | Tipo      | Observações           |
+|-----------|-----------|-----------------------|
+| id        | Integer   | PK                    |
+| name      | String    |                       |
+| color     | String    | hex color #rrggbb     |
+| board_id  | Integer   | FK → boards.id        |
+| created_at| DateTime  | automático            |
+
+Relação muitos-para-muitos com Card através da tabela `card_labels`:
+- `card_id` — FK → cards.id
+- `label_id` — FK → labels.id
 
 ### Comment
 | Campo     | Tipo      | Observações           |

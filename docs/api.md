@@ -274,7 +274,15 @@ GET /api/lists/{list_id}/cards
     "list_id": 1,
     "assignee_id": null,
     "due_date": null,
-    "label": "Funcionalidade",
+    "labels": [
+      {
+        "id": 1,
+        "name": "Funcionalidade",
+        "color": "#22c55e",
+        "board_id": 1,
+        "created_at": "2026-07-22T16:34:29"
+      }
+    ],
     "created_at": "2026-07-22T16:34:29",
     "updated_at": "2026-07-22T16:34:29"
   }
@@ -292,11 +300,11 @@ Content-Type: application/json
   "description": "Adicionar autenticação",
   "assignee_id": null,
   "due_date": null,
-  "label": "Funcionalidade"
+  "label_ids": [1, 2]
 }
 ```
 
-Apenas `title` é obrigatório. Posição é atribuída automaticamente ao final.
+Apenas `title` é obrigatório. Posição é atribuída automaticamente ao final. Use `label_ids` para associar etiquetas existentes.
 
 **Resposta** `201 Created`
 
@@ -317,11 +325,11 @@ Content-Type: application/json
 {
   "title": "Título atualizado",
   "description": "Descrição atualizada",
-  "label": "Bug"
+  "label_ids": [1, 3]
 }
 ```
 
-Todos os campos opcionais. Apenas os fornecidos são atualizados.
+Todos os campos opcionais. Envie `label_ids` como lista vazia `[]` para remover todas as etiquetas.
 
 **Resposta** `200 OK`
 
@@ -352,6 +360,74 @@ Content-Type: application/json
 Use posições fracionadas (ex.: `0.5`, `1.5`, `3.0`) para posicionar cards entre os existentes.
 
 **Resposta** `200 OK`
+
+---
+
+## Etiquetas
+
+Etiquetas são vinculadas a um board e podem ser associadas a múltiplos cards (relação muitos-para-muitos).
+
+### Listar Etiquetas
+
+```http
+GET /api/boards/{board_id}/labels
+```
+
+**Resposta** `200 OK`
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Funcionalidade",
+    "color": "#22c55e",
+    "board_id": 1,
+    "created_at": "2026-07-22T16:34:29"
+  }
+]
+```
+
+### Criar Etiqueta
+
+```http
+POST /api/boards/{board_id}/labels
+Content-Type: application/json
+
+{
+  "name": "Bug",
+  "color": "#ef4444"
+}
+```
+
+`color` deve ser um hex color (ex.: `#ff0000`).
+
+**Resposta** `201 Created`
+
+### Atualizar Etiqueta
+
+```http
+PUT /api/labels/{label_id}
+Content-Type: application/json
+
+{
+  "name": "Melhoria",
+  "color": "#3b82f6"
+}
+```
+
+Ambos os campos são opcionais.
+
+**Resposta** `200 OK`
+
+### Deletar Etiqueta
+
+```http
+DELETE /api/labels/{label_id}
+```
+
+Remove a etiqueta e todas as suas associações com cards (cascade).
+
+**Resposta** `204 No Content`
 
 ---
 

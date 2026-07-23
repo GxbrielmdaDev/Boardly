@@ -23,7 +23,8 @@ src/
 │   ├── board/
 │   │   ├── ListColumn.jsx      # Coluna com dropzone e lista de cards
 │   │   ├── CardItem.jsx        # Card arrastável com handle
-│   │   └── CardModal.jsx       # Modal com detalhes completos do card
+│   │   ├── CardModal.jsx       # Modal com detalhes completos do card
+│   │   └── LabelManager.jsx    # (não usado) Gerenciamento de etiquetas
 │   └── layout/
 │       └── Header.jsx          # Barra superior com nome do usuário + logout
 ├── pages/
@@ -39,6 +40,7 @@ src/
 │   ├── boardService.js         # CRUD de boards
 │   ├── listService.js          # CRUD de listas + reordenar
 │   ├── cardService.js          # CRUD de cards + mover
+│   ├── labelService.js         # CRUD de etiquetas
 │   └── commentService.js       # CRUD de comentários
 ├── store/
 │   ├── authStore.js            # Estado do usuário + persistência localStorage
@@ -76,7 +78,11 @@ Fluxo:
 
 Abre como uma sobreposição fixa ao clicar em um card. Sub-componentes:
 - Input de título editável
-- Input de etiqueta (tag de texto)
+- Seletor de etiquetas com:
+  - Badges coloridas das etiquetas selecionadas
+  - Dropdown para adicionar/remover etiquetas
+  - Criação inline de novas etiquetas (nome + seletor de 8 cores)
+  - Edição e exclusão de etiquetas diretamente no dropdown
 - Textarea de descrição editável
 - Lista de comentários com formulário de adição
 - Botão Salvar (chama `PUT /api/cards/{id}`)
@@ -93,10 +99,12 @@ Abre como uma sobreposição fixa ao clicar em um card. Sub-componentes:
 - `boards` — lista de todos os boards
 - `currentBoard` — board atualmente visualizado
 - `lists` — listas com cards aninhados
-- `loadBoards()`, `loadBoard(id)` — buscar da API
+- `boardLabels` — etiquetas do board atual
+- `loadBoards()`, `loadBoard(id)` — buscar da API (também carrega `boardLabels`)
 - `createBoard(data)`, `deleteBoard(id)` — mutações
 - `createList(id, data)`, `deleteList(id)` — operações de lista
 - `createCard(id, data)`, `moveCard(id, data)`, `updateCard(id, data)`, `deleteCard(id)` — operações de card
+- `loadLabels(id)`, `createLabel(id, data)`, `updateLabel(id, data)`, `deleteLabel(id)` — operações de etiqueta
 
 ## Serviços (Axios)
 
@@ -116,6 +124,14 @@ Nenhum interceptor de autenticação (tokens removidos).
 ### Persistência do Card
 - Editar um card requer clicar em "Salvar" no modal
 - Sem auto-save ao perder o foco do campo
+- As etiquetas são gerenciadas inline no modal do card (criar, editar, excluir e associar)
+
+### Etiquetas (Labels)
+- Cada etiqueta pertence a um board e possui nome + cor hexadecimal
+- Relação muitos-para-muitos com cards via tabela `card_labels`
+- 8 cores predefinidas: Vermelho, Laranja, Amarelo, Verde, Azul, Roxo, Rosa, Cinza
+- Ao abrir o modal de um card, as etiquetas do board são carregadas e exibidas como badges coloridas
+- É possível criar novas etiquetas diretamente no dropdown do modal do card sem fechá-lo
 
 ### Guarda de Navegação
 - O hook `useAuth` redireciona para `/login` se não houver usuário armazenado

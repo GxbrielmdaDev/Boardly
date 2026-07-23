@@ -5,7 +5,6 @@ from sqlalchemy import select, func
 from app.database import get_db
 from app.models.list import List
 from app.schemas.list import ListCreate, ListUpdate, ListResponse
-from app.auth.jwt import get_default_user
 
 router = APIRouter(prefix="/api", tags=["lists"])
 

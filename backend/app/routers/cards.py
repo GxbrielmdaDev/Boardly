@@ -7,7 +7,6 @@ from app.database import get_db
 from app.models.card import Card
 from app.models.label import Label
 from app.schemas.card import CardCreate, CardUpdate, CardMove, CardResponse
-from app.auth.jwt import get_default_user
 
 router = APIRouter(prefix="/api", tags=["cards"])
 

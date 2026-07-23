@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 from app.database import get_db
 from app.models.board import Board, BoardMember
+from app.models.user import User
 from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse, BoardMemberCreate, BoardMemberResponse
-from app.auth.jwt import get_default_user
+from app.auth.jwt import get_current_user
 
 router = APIRouter(prefix="/api/boards", tags=["boards"])
 
@@ -13,8 +14,18 @@ router = APIRouter(prefix="/api/boards", tags=["boards"])
 @router.get("/", response_model=list[BoardResponse])
 async def list_boards(
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Board).order_by(Board.created_at))
+    result = await db.execute(
+        select(Board)
+        .where(
+            or_(
+                Board.owner_id == user.id,
+                Board.members.any(BoardMember.user_id == user.id),
+            )
+        )
+        .order_by(Board.created_at)
+    )
     return [BoardResponse.model_validate(b) for b in result.scalars().all()]
 
 
@@ -22,8 +33,8 @@ async def list_boards(
 async def create_board(
     data: BoardCreate,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    user = await get_default_user(db)
     board = Board(title=data.title, description=data.description, background_color=data.background_color, owner_id=user.id)
     db.add(board)
     await db.commit()
@@ -39,8 +50,17 @@ async def create_board(
 async def get_board(
     board_id: int,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Board).where(Board.id == board_id))
+    result = await db.execute(
+        select(Board).where(
+            Board.id == board_id,
+            or_(
+                Board.owner_id == user.id,
+                Board.members.any(BoardMember.user_id == user.id),
+            ),
+        )
+    )
     board = result.scalar_one_or_none()
     if not board:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Board not found")
@@ -52,8 +72,14 @@ async def update_board(
     board_id: int,
     data: BoardUpdate,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Board).where(Board.id == board_id))
+    result = await db.execute(
+        select(Board).where(
+            Board.id == board_id,
+            Board.owner_id == user.id,
+        )
+    )
     board = result.scalar_one_or_none()
     if not board:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Board not found")
@@ -74,8 +100,14 @@ async def update_board(
 async def delete_board(
     board_id: int,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Board).where(Board.id == board_id))
+    result = await db.execute(
+        select(Board).where(
+            Board.id == board_id,
+            Board.owner_id == user.id,
+        )
+    )
     board = result.scalar_one_or_none()
     if not board:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Board not found")
@@ -88,6 +120,7 @@ async def delete_board(
 async def list_members(
     board_id: int,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
     result = await db.execute(select(BoardMember).where(BoardMember.board_id == board_id))
     return [BoardMemberResponse.model_validate(m) for m in result.scalars().all()]
@@ -98,6 +131,7 @@ async def add_member(
     board_id: int,
     data: BoardMemberCreate,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
     member = BoardMember(board_id=board_id, user_id=data.user_id, role=data.role)
     db.add(member)

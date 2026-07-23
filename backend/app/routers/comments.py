@@ -4,8 +4,9 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models.comment import Comment
+from app.models.user import User
 from app.schemas.comment import CommentCreate, CommentResponse
-from app.auth.jwt import get_default_user
+from app.auth.jwt import get_current_user
 
 router = APIRouter(prefix="/api", tags=["comments"])
 
@@ -24,8 +25,8 @@ async def create_comment(
     card_id: int,
     data: CommentCreate,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    user = await get_default_user(db)
     comment = Comment(content=data.content, card_id=card_id, user_id=user.id)
     db.add(comment)
     await db.commit()

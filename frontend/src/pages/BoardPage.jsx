@@ -102,10 +102,7 @@ export default function BoardPage() {
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
       <Header />
-      <div
-        className="flex-1 p-4 overflow-x-auto"
-        style={{ backgroundColor: currentBoard.background_color }}
-      >
+      <div className="flex-1 p-4 overflow-x-auto bg-slate-900">
         <div className="flex gap-4 items-start min-h-[calc(100vh-80px)]">
           <DndContext
             sensors={sensors}

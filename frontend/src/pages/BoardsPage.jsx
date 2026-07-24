@@ -36,11 +36,11 @@ export default function BoardsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <Header />
       <main className="p-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Meus Boards</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Meus Boards</h1>
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
@@ -51,35 +51,35 @@ export default function BoardsPage() {
 
         {showForm && (
           <div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/40 dark:bg-black/50 flex items-center justify-center z-50"
             onClick={() => setShowForm(false)}
           >
             <form
               onSubmit={handleCreate}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-800 rounded-lg p-6 w-full max-w-md border border-slate-700 shadow-xl"
+              className="bg-white dark:bg-slate-800 rounded-lg p-6 w-full max-w-md border border-slate-200 dark:border-slate-700 shadow-xl"
             >
-              <h2 className="text-white text-lg font-bold mb-4">Criar Novo Board</h2>
+              <h2 className="text-slate-900 dark:text-white text-lg font-bold mb-4">Criar Novo Board</h2>
               <input
                 type="text"
                 placeholder="Título do board"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full p-3 rounded bg-slate-700 text-white border border-slate-600 focus:border-blue-500 outline-none mb-3"
+                className="w-full p-3 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 focus:border-blue-500 outline-none mb-3"
                 autoFocus
               />
               <textarea
                 placeholder="Descrição (opcional)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 rounded bg-slate-700 text-white border border-slate-600 focus:border-blue-500 outline-none mb-4 resize-none"
+                className="w-full p-3 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 focus:border-blue-500 outline-none mb-4 resize-none"
                 rows={3}
               />
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded transition"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded transition"
                 >
                   Cancelar
                 </button>

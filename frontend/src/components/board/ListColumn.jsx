@@ -13,12 +13,12 @@ export default function ListColumn({
   const { setNodeRef } = useDroppable({ id: `list-${list.id}` });
 
   return (
-    <div className="bg-slate-800/80 rounded-lg w-72 shrink-0 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/50">
-        <h3 className="text-white font-semibold text-sm">{list.title}</h3>
+    <div className="bg-slate-100/80 dark:bg-slate-800/80 rounded-lg w-72 shrink-0 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-slate-900 dark:text-white font-semibold text-sm">{list.title}</h3>
         <button
           onClick={onDeleteList}
-          className="text-slate-500 hover:text-red-400 text-xs transition"
+          className="text-slate-400 dark:text-slate-500 hover:text-red-400 text-xs transition"
         >
           ✕
         </button>
@@ -32,7 +32,7 @@ export default function ListColumn({
         </SortableContext>
       </div>
 
-      <div className="p-2 border-t border-slate-700/50">
+      <div className="p-2 border-t border-slate-200 dark:border-slate-700/50">
         <div className="flex gap-1">
           <input
             type="text"
@@ -40,7 +40,7 @@ export default function ListColumn({
             value={newCardTitle}
             onChange={(e) => onNewCardTitleChange(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && onAddCard()}
-            className="flex-1 p-2 rounded bg-slate-700/50 text-white text-sm placeholder-slate-400 border border-slate-600/50 focus:border-blue-500 outline-none"
+            className="flex-1 p-2 rounded bg-slate-200/50 dark:bg-slate-700/50 text-slate-900 dark:text-white text-sm placeholder-slate-400 border border-slate-300 dark:border-slate-600/50 focus:border-blue-500 outline-none"
           />
           <button
             onClick={onAddCard}

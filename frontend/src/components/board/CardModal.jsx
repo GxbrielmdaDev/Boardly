@@ -100,9 +100,9 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
   if (!card) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-start justify-center pt-16 z-50" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-start justify-center pt-16 z-50" onClick={onClose}>
       <div
-        className="bg-slate-800 rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 mx-4"
+        className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 mx-4 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-4">
@@ -110,13 +110,13 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="text-xl font-bold text-white bg-transparent border-b border-transparent focus:border-blue-500 outline-none flex-1 mr-4"
+            className="text-xl font-bold text-slate-900 dark:text-white bg-transparent border-b border-transparent focus:border-blue-500 outline-none flex-1 mr-4"
           />
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">✕</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg">✕</button>
         </div>
 
         <div className="mb-4">
-          <label className="text-xs text-slate-400 uppercase mb-1 block">Etiquetas</label>
+          <label className="text-xs text-slate-500 dark:text-slate-400 uppercase mb-1 block">Etiquetas</label>
 
           <div className="flex flex-wrap gap-1 mb-2">
             {boardLabels
@@ -137,13 +137,13 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
           <div className="relative">
             <button
               onClick={() => setShowLabelPicker(!showLabelPicker)}
-              className="px-3 py-1.5 rounded bg-slate-700 text-slate-300 text-sm border border-slate-600 hover:border-blue-500 transition"
+              className="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm border border-slate-300 dark:border-slate-600 hover:border-blue-500 transition"
             >
               {boardLabels.length === 0 ? 'Nenhuma etiqueta disponível' : '+ Adicionar etiqueta'}
             </button>
 
             {showLabelPicker && (
-              <div className="absolute top-full left-0 mt-1 bg-slate-700 rounded border border-slate-600 p-2 shadow-xl z-10 min-w-[240px] max-h-72 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 bg-white dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600 p-2 shadow-xl z-10 min-w-[240px] max-h-72 overflow-y-auto">
                 {boardLabels.map((label) => {
                   const isSelected = selectedLabelIds.includes(label.id);
                   if (editingLabelId === label.id) {
@@ -153,36 +153,36 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
                           type="text"
                           value={editLabelName}
                           onChange={(e) => setEditLabelName(e.target.value)}
-                          className="flex-1 p-1 rounded bg-slate-600 text-white text-xs border border-blue-500 outline-none"
+                          className="flex-1 p-1 rounded bg-slate-100 dark:bg-slate-600 text-slate-900 dark:text-white text-xs border border-blue-500 outline-none"
                           autoFocus
                           onKeyDown={(e) => e.key === 'Enter' && handleUpdateLabel(label.id)}
                         />
-                        <button onClick={() => handleUpdateLabel(label.id)} className="text-green-400 hover:text-green-300 text-xs">ok</button>
-                        <button onClick={() => setEditingLabelId(null)} className="text-slate-400 hover:text-white text-xs">✕</button>
+                        <button onClick={() => handleUpdateLabel(label.id)} className="text-green-600 dark:text-green-400 hover:text-green-500 text-xs">ok</button>
+                        <button onClick={() => setEditingLabelId(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs">✕</button>
                       </div>
                     );
                   }
                   return (
                     <div
                       key={label.id}
-                      className="flex items-center gap-2 p-1.5 rounded group hover:bg-slate-600/50 cursor-pointer"
+                      className="flex items-center gap-2 p-1.5 rounded group hover:bg-slate-100 dark:hover:bg-slate-600/50 cursor-pointer"
                       onClick={() => toggleLabel(label.id)}
                     >
                       <div
-                        className={`w-4 h-4 rounded border-2 shrink-0 ${isSelected ? 'border-white' : 'border-transparent'}`}
+                        className={`w-4 h-4 rounded border-2 shrink-0 ${isSelected ? 'border-blue-500 dark:border-white' : 'border-transparent'}`}
                         style={{ backgroundColor: label.color }}
                       />
-                      <span className="text-white text-sm flex-1">{label.name}</span>
-                      {isSelected && <span className="text-blue-400 text-xs">✓</span>}
+                      <span className="text-slate-700 dark:text-white text-sm flex-1">{label.name}</span>
+                      {isSelected && <span className="text-blue-600 dark:text-blue-400 text-xs">✓</span>}
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditingLabelId(label.id); setEditLabelName(label.name); }}
-                        className="text-slate-500 hover:text-blue-400 text-xs opacity-0 group-hover:opacity-100 transition"
+                        className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs opacity-0 group-hover:opacity-100 transition"
                       >
                         editar
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteLabel(label.id); }}
-                        className="text-slate-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition"
+                        className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition"
                       >
                         excluir
                       </button>
@@ -190,14 +190,14 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
                   );
                 })}
 
-                <div className="border-t border-slate-600 mt-2 pt-2">
+                <div className="border-t border-slate-200 dark:border-slate-600 mt-2 pt-2">
                   <form onSubmit={handleCreateLabel} className="flex gap-1 mb-1">
                     <input
                       type="text"
                       value={newLabelName}
                       onChange={(e) => setNewLabelName(e.target.value)}
                       placeholder="Nova etiqueta..."
-                      className="flex-1 p-1 rounded bg-slate-600 text-white text-xs border border-slate-500 focus:border-blue-500 outline-none"
+                      className="flex-1 p-1 rounded bg-slate-100 dark:bg-slate-600 text-slate-900 dark:text-white text-xs border border-slate-300 dark:border-slate-500 focus:border-blue-500 outline-none"
                     />
                     <button
                       type="submit"
@@ -212,7 +212,7 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
                         key={c.value}
                         type="button"
                         onClick={() => setNewLabelColor(c.value)}
-                        className={`w-4 h-4 rounded-full border ${newLabelColor === c.value ? 'border-white scale-110' : 'border-transparent'}`}
+                        className={`w-4 h-4 rounded-full border ${newLabelColor === c.value ? 'border-blue-500 dark:border-white scale-110' : 'border-transparent'}`}
                         style={{ backgroundColor: c.value }}
                       />
                     ))}
@@ -224,13 +224,13 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
         </div>
 
         <div className="mb-4">
-          <label className="text-xs text-slate-400 uppercase mb-1 block">Descrição</label>
+          <label className="text-xs text-slate-500 dark:text-slate-400 uppercase mb-1 block">Descrição</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
             placeholder="Adicione uma descrição..."
-            className="w-full p-2 rounded bg-slate-700 text-white text-sm border border-slate-600 focus:border-blue-500 outline-none resize-none"
+            className="w-full p-2 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white text-sm border border-slate-300 dark:border-slate-600 focus:border-blue-500 outline-none resize-none"
           />
         </div>
 
@@ -251,7 +251,7 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
               </button>
               <button
                 onClick={() => setShowDelete(false)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm transition"
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded text-sm transition"
               >
                 Cancelar
               </button>
@@ -259,20 +259,20 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
           ) : (
             <button
               onClick={() => setShowDelete(true)}
-              className="px-4 py-2 bg-slate-700 hover:bg-red-600 text-white rounded text-sm transition"
+              className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-red-600 text-slate-700 dark:text-white rounded text-sm transition"
             >
               Excluir
             </button>
           )}
         </div>
 
-        <div className="border-t border-slate-700 pt-4">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">Comentários</h4>
+        <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+          <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3">Comentários</h4>
           <div className="space-y-3 mb-4">
             {comments.map((c) => (
-              <div key={c.id} className="bg-slate-700/50 rounded p-3">
-                <p className="text-white text-sm">{c.content}</p>
-                <p className="text-slate-500 text-xs mt-1">
+              <div key={c.id} className="bg-slate-100 dark:bg-slate-700/50 rounded p-3">
+                <p className="text-slate-900 dark:text-white text-sm">{c.content}</p>
+                <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">
                   {new Date(c.created_at).toLocaleString()}
                 </p>
               </div>
@@ -285,7 +285,7 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Escreva um comentário..."
-              className="flex-1 p-2 rounded bg-slate-700 text-white text-sm border border-slate-600 focus:border-blue-500 outline-none"
+              className="flex-1 p-2 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white text-sm border border-slate-300 dark:border-slate-600 focus:border-blue-500 outline-none"
             />
             <button
               type="submit"

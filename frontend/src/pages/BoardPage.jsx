@@ -82,27 +82,27 @@ export default function BoardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <p className="text-slate-400">Carregando...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
       </div>
     );
   }
 
   if (!currentBoard) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-slate-400 mb-4">Board não encontrado</p>
-          <button onClick={() => navigate('/boards')} className="text-blue-400 hover:underline">Voltar</button>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">Board não encontrado</p>
+          <button onClick={() => navigate('/boards')} className="text-blue-600 dark:text-blue-400 hover:underline">Voltar</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       <Header />
-      <div className="flex-1 p-4 overflow-x-auto bg-slate-900">
+      <div className="flex-1 p-4 overflow-x-auto bg-slate-50 dark:bg-slate-900">
         <div className="flex gap-4 items-start min-h-[calc(100vh-80px)]">
           <DndContext
             sensors={sensors}
@@ -126,8 +126,8 @@ export default function BoardPage() {
 
             <DragOverlay>
               {activeCard ? (
-                <div className="bg-slate-800 rounded-lg p-3 shadow-xl border border-blue-500/50 w-72 opacity-90">
-                  <p className="text-white text-sm font-medium">{activeCard.title}</p>
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-xl border border-blue-500/50 w-72 opacity-90">
+                  <p className="text-slate-900 dark:text-white text-sm font-medium">{activeCard.title}</p>
                 </div>
               ) : null}
             </DragOverlay>
@@ -139,7 +139,7 @@ export default function BoardPage() {
               placeholder="+ Adicionar lista"
               value={listTitle}
               onChange={(e) => setListTitle(e.target.value)}
-              className="w-full p-3 rounded bg-slate-800/80 text-white placeholder-slate-400 border border-slate-700/50 focus:border-blue-500 outline-none backdrop-blur-sm"
+              className="w-full p-3 rounded bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 border border-slate-300 dark:border-slate-700/50 focus:border-blue-500 outline-none backdrop-blur-sm"
             />
           </form>
         </div>

@@ -110,7 +110,7 @@ export default function CardModal({ cardId, onClose, boardLabels }) {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="text-xl font-bold text-slate-900 dark:text-white bg-transparent border-b border-transparent focus:border-blue-500 outline-none flex-1 mr-4"
+            className="text-xl font-bold text-slate-900 dark:text-white bg-transparent border-b border-transparent focus:border-blue-500 outline-none flex-1 min-w-0 mr-4"
           />
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg">✕</button>
         </div>

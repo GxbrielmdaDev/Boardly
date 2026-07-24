@@ -24,9 +24,9 @@ export default function CardItem({ card, onClick }) {
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className="bg-white dark:bg-slate-700 rounded-lg p-3 cursor-grab active:cursor-grabbing hover:bg-slate-50 dark:hover:bg-slate-650 transition border border-slate-200 dark:border-slate-600/30"
+      className="bg-white dark:bg-slate-700 rounded-lg p-3 cursor-grab active:cursor-grabbing hover:bg-slate-50 dark:hover:bg-slate-650 transition border border-slate-200 dark:border-slate-600/30 break-words overflow-hidden"
     >
-      <p className="text-slate-900 dark:text-white text-sm">{card.title}</p>
+      <p className="text-slate-900 dark:text-white text-sm break-words">{card.title}</p>
       {card.labels && card.labels.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-1">
           {card.labels.map((label) => (

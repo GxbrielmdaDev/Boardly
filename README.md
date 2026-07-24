@@ -107,6 +107,7 @@ Boardly/
 - **Drag & Drop** — Mover cards entre listas com dnd-kit
 - **Comentários** — Adicionar e visualizar comentários nos cards
 - **Detalhes do Card** — Modal com título editável, descrição, etiqueta e comentários
+- **Light e Dark Mode** — Alternar entre modo light e dark
 
 ---
 
@@ -137,7 +138,9 @@ Boardly/
 | POST   | `/api/cards/{id}/comments`   | Adicionar comentário     |
 | DELETE | `/api/comments/{id}`         | Deletar comentário       |
 
-Documentação completa em [/docs/api.md](docs/api.md).
+- Documentação completa em [/docs/api.md](docs/api.md). 
+- Documentação Frontend em [/docs/frontend.md](docs/frontend.md). 
+- Documentação Backend em [/docs/backend.md](docs/backend.md).
 
 ---
 
@@ -155,4 +158,3 @@ Este projeto está distribuído sob a licença **MIT**
 
 - 🐙 GitHub: [@GxbrielmdaDev](https://github.com/GxbrielmdaDev)
 - 💼 LinkedIn: [Gabriel Almeida](www.linkedin.com/in/gabriellmdadev)
--

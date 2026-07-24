@@ -18,15 +18,15 @@
 src/
 ├── components/
 │   ├── auth/
-│   │   ├── LoginForm.jsx       # Formulário de login (email/senha)
-│   │   └── RegisterForm.jsx    # Cadastro (username/email/senha)
+│   │   ├── LoginForm.jsx       # Login em split-screen com branding
+│   │   └── RegisterForm.jsx    # Cadastro em split-screen com branding
 │   ├── board/
 │   │   ├── ListColumn.jsx      # Coluna com dropzone e lista de cards
 │   │   ├── CardItem.jsx        # Card arrastável com handle
 │   │   ├── CardModal.jsx       # Modal com detalhes completos do card
 │   │   └── LabelManager.jsx    # (não usado) Gerenciamento de etiquetas
 │   └── layout/
-│       └── Header.jsx          # Barra superior com nome do usuário + logout
+│       └── Header.jsx          # Barra superior com logo, tema toggle, usuário + logout
 ├── pages/
 │   ├── LoginPage.jsx           # /login
 │   ├── RegisterPage.jsx        # /register
@@ -44,7 +44,8 @@ src/
 │   └── commentService.js       # CRUD de comentários
 ├── store/
 │   ├── authStore.js            # Estado do usuário + persistência localStorage
-│   └── boardStore.js           # Estado dos boards + listas + cards + ações
+│   ├── boardStore.js           # Estado dos boards + listas + cards + ações
+│   └── themeStore.js           # Estado do tema (dark/light) + persistência localStorage
 ├── App.jsx                     # Definição das rotas
 ├── main.jsx                    # Raiz React + BrowserRouter
 └── index.css                   # Diretivas Tailwind
@@ -54,12 +55,19 @@ src/
 
 | Caminho           | Página         | Descrição                |
 |-------------------|----------------|--------------------------|
-| `/login`          | LoginPage      | Entrar                   |
-| `/register`       | RegisterPage   | Criar conta              |
+| `/login`          | LoginPage      | Entrar (redireciona para /boards se logado) |
+| `/register`       | RegisterPage   | Criar conta (redireciona para /boards se logado) |
 | `/boards`         | BoardsPage     | Listar todos os boards   |
 | `/boards/:id`     | BoardPage      | Visualizar quadro kanban |
 
 ## Arquitetura de Componentes
+
+### Login / Register (Auth Pages)
+
+Layout split-screen com duas metades:
+1. **Painel esquerdo (LG+)**: gradiente azul-índigo com logo, tagline, features e copyright — oculto em mobile
+2. **Painel direito**: formulário centralizado com campos estilizados (ícones SVG, labels, foco com ring), botão gradiente com loading state, botão de alternância de tema (sol/lua) e link para a página oposta
+3. As páginas (`LoginPage`, `RegisterPage`) redirecionam para `/boards` se o usuário já estiver logado
 
 ### BoardPage (Kanban)
 
@@ -110,7 +118,8 @@ Abre como uma sobreposição fixa ao clicar em um card. Sub-componentes:
 
 Cada arquivo de serviço encapsula chamadas da API. A instância `api.js` define `baseURL: http://localhost:8000` e `Content-Type: application/json`.
 
-Nenhum interceptor de autenticação (tokens removidos).
+### Interceptor de Autenticação
+O `api.js` possui um interceptor de requisição que lê o usuário do `localStorage` e adiciona o header `X-User-Id` em todas as chamadas. O backend usa esse header para identificar o usuário e filtrar boards/recursos.
 
 ## Comportamentos Principais
 
@@ -132,6 +141,13 @@ Nenhum interceptor de autenticação (tokens removidos).
 - 8 cores predefinidas: Vermelho, Laranja, Amarelo, Verde, Azul, Roxo, Rosa, Cinza
 - Ao abrir o modal de um card, as etiquetas do board são carregadas e exibidas como badges coloridas
 - É possível criar novas etiquetas diretamente no dropdown do modal do card sem fechá-lo
+
+### Tema (Dark/Light)
+- Gerenciado pelo `themeStore.js` com persistência em `localStorage`
+- Padrão: dark mode
+- Botão de alternância (sol/lua) no Header e nas telas de login/cadastro
+- Implementado via `darkMode: 'class'` no Tailwind — a classe `.dark` é aplicada ao `<html>` pelo `ThemeProvider` em `App.jsx`
+- Todos os componentes seguem o padrão `bg-white text-slate-900` (light) + `dark:bg-slate-900 dark:text-white` (dark)
 
 ### Guarda de Navegação
 - O hook `useAuth` redireciona para `/login` se não houver usuário armazenado

@@ -46,7 +46,7 @@ backend/
 │   │   └── comments.py      # /api/*/comments, /api/comments/*
 │   └── auth/
 │       ├── __init__.py
-│       └── jwt.py           # Helper get_default_user
+│       └── jwt.py           # get_current_user — lê X-User-Id do header
 ├── requirements.txt
 └── .env
 ```
@@ -145,8 +145,8 @@ Relação muitos-para-muitos com Card através da tabela `card_labels`:
 ### 1. Totalmente Assíncrono
 Todas as operações de banco usam a sessão assíncrona do SQLAlchemy com `aiosqlite`. Os endpoints são `async def`, proporcionando boa concorrência para trabalho I/O-bound.
 
-### 2. Sem Autenticação (por enquanto)
-O sistema usa o helper `get_default_user` que retorna o primeiro usuário (ou cria um com `id=1`). Esse modo "rascunho" permite desenvolvimento rápido sem gerenciamento de tokens.
+### 2. Identificação por Header (X-User-Id)
+O sistema usa o helper `get_current_user` que lê o header `X-User-Id` de cada requisição para identificar o usuário. O frontend envia esse header automaticamente via interceptor Axios. Boards são filtrados por owner/membro — cada usuário vê apenas seus próprios boards.
 
 ### 3. Posicionamento Fracionado
 Listas e cards usam `Float` para `position`. Para inserir entre itens, use um valor intermediário entre os vizinhos (ex.: `1.5` entre `1.0` e `2.0`). Nenhum reindex é realizado.

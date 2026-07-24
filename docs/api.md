@@ -2,6 +2,14 @@
 
 URL Base: `http://localhost:8000`
 
+Todas as requisições (exceto `/api/auth/register` e `/api/auth/login`) exigem o header:
+
+```
+X-User-Id: <id_do_usuario>
+```
+
+O frontend envia automaticamente via interceptor Axios com o ID do usuário logado.
+
 ---
 
 ## Autenticação
